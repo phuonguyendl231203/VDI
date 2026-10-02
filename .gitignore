@@ -1,0 +1,15 @@
+# Build
+android/build/
+android/app/build/
+android/.gradle/
+android/.idea/
+android/local.properties
+*.apk
+*.iml
+# Giao diện được Gradle tự chép từ web/ khi build
+android/app/src/main/assets/web/
+# SDK OrionStar (gói hãng gửi riêng, không phát tán)
+android/app/libs/*.aar
+android/app/libs/*.jar
+# Python
+__pycache__/

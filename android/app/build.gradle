@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+// AGP 9+ có hỗ trợ Kotlin tích hợp sẵn, không cần apply plugin 'kotlin-android' riêng.
+
+android {
+    namespace 'com.roboworld.vdi'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.roboworld.vdi"
+        minSdk 26
+        targetSdk 34
+        versionCode 2
+        versionName "1.1"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+// Giao diện của app chính là trang web trong Roboworld-Design-Kit/website-nova-vdi-15nam.
+// Mỗi lần build, Gradle tự chép bản mới nhất vào assets/web — sửa giao diện/câu hỏi ở thư mục web đó,
+// KHÔNG sửa trực tiếp trong app/src/main/assets/web (sẽ bị ghi đè).
+// Repo GitHub: android/ + web/ cùng cấp. Workspace Roboworld: Nova-AgentOS-Dev/NovaVDI + Roboworld-Design-Kit/website-nova-vdi-15nam
+def webSrc = [file("${rootDir}/../web"), file("${rootDir}/../../Roboworld-Design-Kit/website-nova-vdi-15nam")].find { it.exists() } ?: file("${rootDir}/../web")
+tasks.register('syncWeb', Copy) {
+    onlyIf { webSrc.exists() }
+    from(webSrc) {
+        include 'index.html', 'css/**', 'js/**', 'img/**', 'fonts/**'
+    }
+    into file('src/main/assets/web')
+}
+preBuild.dependsOn syncWeb
+
+dependencies {
+    // SDK offline hãng gửi (agent-sdk-0.4.7-offline.zip) — đặt sẵn trong app/libs
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
+    implementation 'org.jetbrains.kotlin:kotlin-parcelize-runtime:1.9.22'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+}
